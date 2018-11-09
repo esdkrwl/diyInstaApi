@@ -10,7 +10,7 @@ def get_follower_count(insta_username):
     payload_string = ""
 
     for line in response.split('\n'):
-        if "activity_counts" in line:
+        if  '<script type="text/javascript">window._sharedData = {"config":' in line:
             payload_string = line
             break
 
