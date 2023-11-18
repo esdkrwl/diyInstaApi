@@ -1,27 +1,22 @@
 import requests
-import json
+import re
+
+followers_re = re.compile(r"^.*?([0-9]+[A-Z])\s*Followers.*")
 
 
 def get_follower_count(insta_username):
     url = "https://www.instagram.com/" + insta_username
     r = requests.get(url)
     response = r.text
-
-    payload_string = ""
+    followers = None
 
     for line in response.split('\n'):
-        if  '<script type="text/javascript">window._sharedData = {"config":' in line:
-            payload_string = line
-            break
+        if followers_re.match(line):
+            followers = followers_re.match(line).group(1)
 
     # Falls aus Gründen der String nciht gefunden werden kann, gib einfach -1 zurück damit die API Bescheid weiß
-    if not payload_string:
+    if not followers:
         return -1
 
-    # Schneide JSON String aus. Beginne mit dem ersten { und ende mit dem letzen }
-    json_substring = payload_string[payload_string.index('{'):payload_string.rindex('}')+1]
-
-    json_payload = json.loads(json_substring)
-    follower_count = json_payload['entry_data']['ProfilePage'][0]['graphql']['user']['edge_followed_by']['count']
-    return follower_count
+    return followers
 
